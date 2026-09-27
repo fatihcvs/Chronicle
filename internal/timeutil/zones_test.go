@@ -8,7 +8,7 @@ import (
 
 // The three pre-consolidation curated lists (account settings, calendar
 // real-time anchor, availability scheduler), encoded verbatim so this test
-// pins the union property against what shipped before â€” not against
+// pins the union property against what shipped before — not against
 // CommonZones' own source, which would make the test tautological and blind
 // to an accidental future drop. oldAvailabilityList is the one with a genuine
 // addition: the literal "UTC" entry, absent from the other two.
@@ -66,7 +66,7 @@ func TestCommonZones_IsUnionOfOldLists(t *testing.T) {
 	for _, old := range [][]string{oldAuthList, oldCalendarList, oldAvailabilityList} {
 		for _, zone := range old {
 			if !got[zone] {
-				t.Errorf("CommonZones() is missing %q, present in a pre-consolidation list â€” a user could previously pick this zone", zone)
+				t.Errorf("CommonZones() is missing %q, present in a pre-consolidation list — a user could previously pick this zone", zone)
 			}
 		}
 	}
@@ -136,7 +136,7 @@ func TestCommonZones_FractionalOffsets(t *testing.T) {
 }
 
 // TestCommonZones_AllLoadable pins that every emitted zone actually resolves
-// against the host's tz database â€” the curated list is a UX convenience, but
+// against the host's tz database — the curated list is a UX convenience, but
 // an unselectable option (one that fails to load) would be worse than not
 // listing it, matching the validation the three old lists each already did.
 func TestCommonZones_AllLoadable(t *testing.T) {
@@ -145,7 +145,7 @@ func TestCommonZones_AllLoadable(t *testing.T) {
 			t.Errorf("CommonZones() contains %q, which does not resolve via time.LoadLocation", z.Value)
 		}
 		if z.Value != z.Label {
-			t.Errorf("Zone %+v: Value and Label differ â€” no consumer expects a friendly name yet", z)
+			t.Errorf("Zone %+v: Value and Label differ — no consumer expects a friendly name yet", z)
 		}
 	}
 }
@@ -165,7 +165,7 @@ func TestCommonZones_NoDuplicates(t *testing.T) {
 
 // TestCommonZones_ExistingFixturesStillResolve pins the specific zones
 // exercised heavily by other packages' test fixtures (sessions/calendar DST
-// tests) â€” a reader's guarantee that consolidation didn't disturb them, even
+// tests) — a reader's guarantee that consolidation didn't disturb them, even
 // though by construction a union can only add entries, never drop one.
 func TestCommonZones_ExistingFixturesStillResolve(t *testing.T) {
 	for _, zone := range []string{"America/New_York", "America/Chicago", "Europe/London"} {
