@@ -17,7 +17,7 @@ import (
 
 // Zone is one curated timezone option: the IANA identifier consumers store
 // and send back, plus the label shown in the picker. The two are identical
-// today (no surface has ever shown a friendlier name) — kept as separate
+// today (no surface has ever shown a friendlier name) â€” kept as separate
 // fields so a future display-name pass doesn't have to touch every consumer.
 type Zone struct {
 	Value string
@@ -37,22 +37,22 @@ var commonZoneNames = []string{
 	"America/Santiago", "America/Sao_Paulo", "America/St_Johns", "America/Toronto",
 	"America/Vancouver",
 	"Asia/Baghdad", "Asia/Bangkok", "Asia/Colombo", "Asia/Dubai", "Asia/Hong_Kong",
-	"Asia/Istanbul", "Asia/Jakarta", "Asia/Karachi", "Asia/Kolkata", "Asia/Manila",
+	"Asia/Istanbul", "Asia/Jakarta", "Asia/Kabul", "Asia/Karachi", "Asia/Kathmandu", "Asia/Kolkata", "Asia/Manila",
 	"Asia/Seoul", "Asia/Shanghai", "Asia/Singapore", "Asia/Taipei", "Asia/Tehran",
-	"Asia/Tokyo",
+	"Asia/Tokyo", "Asia/Yangon",
 	"Atlantic/Reykjavik",
-	"Australia/Adelaide", "Australia/Brisbane", "Australia/Melbourne",
+	"Australia/Adelaide", "Australia/Brisbane", "Australia/Darwin", "Australia/Melbourne",
 	"Australia/Perth", "Australia/Sydney",
 	"Europe/Amsterdam", "Europe/Athens", "Europe/Berlin", "Europe/Brussels",
 	"Europe/Dublin", "Europe/Helsinki", "Europe/Lisbon", "Europe/London",
 	"Europe/Madrid", "Europe/Moscow", "Europe/Oslo", "Europe/Paris",
 	"Europe/Prague", "Europe/Rome", "Europe/Stockholm", "Europe/Vienna",
 	"Europe/Warsaw", "Europe/Zurich",
-	"Pacific/Auckland", "Pacific/Fiji", "Pacific/Guam", "Pacific/Honolulu",
+	"Pacific/Auckland", "Pacific/Chatham", "Pacific/Fiji", "Pacific/Guam", "Pacific/Honolulu",
 }
 
-// CommonZones returns the canonical curated timezone list — value+label pairs
-// for a picker — validated against the host's tz database. This is the ONLY
+// CommonZones returns the canonical curated timezone list â€” value+label pairs
+// for a picker â€” validated against the host's tz database. This is the ONLY
 // hand-curated zone list in the codebase; every dropdown (account settings,
 // calendar real-time anchor, availability scheduler) renders from it.
 func CommonZones() []Zone {
@@ -66,7 +66,7 @@ func CommonZones() []Zone {
 }
 
 // CommonZonesJSON returns CommonZones' values (not labels) as a JSON array,
-// for server-embedding into HTML via a data attribute — how a JS consumer
+// for server-embedding into HTML via a data attribute â€” how a JS consumer
 // (e.g. the availability scheduler) reads the canonical list without a new
 // endpoint and without hand-rolling its own copy.
 func CommonZonesJSON() string {

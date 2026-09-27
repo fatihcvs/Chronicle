@@ -3,11 +3,12 @@ package timeutil
 import (
 	"encoding/json"
 	"testing"
+	"time"
 )
 
 // The three pre-consolidation curated lists (account settings, calendar
 // real-time anchor, availability scheduler), encoded verbatim so this test
-// pins the union property against what shipped before — not against
+// pins the union property against what shipped before â€” not against
 // CommonZones' own source, which would make the test tautological and blind
 // to an accidental future drop. oldAvailabilityList is the one with a genuine
 // addition: the literal "UTC" entry, absent from the other two.
@@ -65,36 +66,77 @@ func TestCommonZones_IsUnionOfOldLists(t *testing.T) {
 	for _, old := range [][]string{oldAuthList, oldCalendarList, oldAvailabilityList} {
 		for _, zone := range old {
 			if !got[zone] {
-				t.Errorf("CommonZones() is missing %q, present in a pre-consolidation list — a user could previously pick this zone", zone)
+				t.Errorf("CommonZones() is missing %q, present in a pre-consolidation list â€” a user could previously pick this zone", zone)
 			}
 		}
 	}
 }
 
-// TestCommonZones_ExactUnion pins the other direction too: CommonZones must
-// be the union and nothing more — every entry traces back to one of the
-// three old lists below.
+// TestCommonZones_ExactUnion permits only the old union and explicit additions.
 func TestCommonZones_ExactUnion(t *testing.T) {
+	additions := []string{
+		"Asia/Kabul", "Asia/Kathmandu", "Asia/Yangon", "Australia/Darwin", "Pacific/Chatham",
+	}
 	union := make(map[string]bool)
-	for _, old := range [][]string{oldAuthList, oldCalendarList, oldAvailabilityList} {
-		for _, zone := range old {
+	for _, list := range [][]string{oldAuthList, oldCalendarList, oldAvailabilityList, additions} {
+		for _, zone := range list {
 			union[zone] = true
 		}
 	}
-
 	got := commonZoneValueSet(t)
 	if len(got) != len(union) {
-		t.Errorf("CommonZones() has %d entries, want exactly %d (the union of the old lists)", len(got), len(union))
+		t.Errorf("CommonZones() has %d entries, want exactly %d (old union plus additions)", len(got), len(union))
+	}
+	for zone := range union {
+		if !got[zone] {
+			t.Errorf("CommonZones() is missing %q", zone)
+		}
 	}
 	for zone := range got {
 		if !union[zone] {
-			t.Errorf("CommonZones() contains %q, not present in any pre-consolidation list", zone)
+			t.Errorf("CommonZones() contains unapproved zone %q", zone)
 		}
 	}
 }
 
+func TestCommonZones_FractionalOffsets(t *testing.T) {
+	tests := []struct {
+		name          string
+		january, july int
+	}{
+		{"Asia/Kabul", 270, 270},
+		{"Asia/Kathmandu", 345, 345},
+		{"Asia/Yangon", 390, 390},
+		{"Australia/Darwin", 570, 570},
+		{"Pacific/Chatham", 825, 765},
+	}
+	got := commonZoneValueSet(t)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if !got[tt.name] {
+				t.Fatalf("missing picker option %q", tt.name)
+			}
+			loc, err := time.LoadLocation(tt.name)
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, date := range []struct {
+				month   time.Month
+				minutes int
+			}{
+				{time.January, tt.january}, {time.July, tt.july},
+			} {
+				_, offset := time.Date(2026, date.month, 15, 12, 0, 0, 0, loc).Zone()
+				if offset != date.minutes*60 {
+					t.Errorf("%s offset = %d seconds, want %d", date.month, offset, date.minutes*60)
+				}
+			}
+		})
+	}
+}
+
 // TestCommonZones_AllLoadable pins that every emitted zone actually resolves
-// against the host's tz database — the curated list is a UX convenience, but
+// against the host's tz database â€” the curated list is a UX convenience, but
 // an unselectable option (one that fails to load) would be worse than not
 // listing it, matching the validation the three old lists each already did.
 func TestCommonZones_AllLoadable(t *testing.T) {
@@ -103,7 +145,7 @@ func TestCommonZones_AllLoadable(t *testing.T) {
 			t.Errorf("CommonZones() contains %q, which does not resolve via time.LoadLocation", z.Value)
 		}
 		if z.Value != z.Label {
-			t.Errorf("Zone %+v: Value and Label differ — no consumer expects a friendly name yet", z)
+			t.Errorf("Zone %+v: Value and Label differ â€” no consumer expects a friendly name yet", z)
 		}
 	}
 }
@@ -123,7 +165,7 @@ func TestCommonZones_NoDuplicates(t *testing.T) {
 
 // TestCommonZones_ExistingFixturesStillResolve pins the specific zones
 // exercised heavily by other packages' test fixtures (sessions/calendar DST
-// tests) — a reader's guarantee that consolidation didn't disturb them, even
+// tests) â€” a reader's guarantee that consolidation didn't disturb them, even
 // though by construction a union can only add entries, never drop one.
 func TestCommonZones_ExistingFixturesStillResolve(t *testing.T) {
 	for _, zone := range []string{"America/New_York", "America/Chicago", "Europe/London"} {
